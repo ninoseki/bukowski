@@ -19,7 +19,7 @@ def poetry_with_non_package_mode():
     data = tomlkit.loads(Path("tests/fixtures/poetry/pyproject.toml").read_text())
     data["tool"]["poetry"]["package-mode"] = False  # type: ignore
 
-    with tempfile.NamedTemporaryFile("w", delete_on_close=False) as f:
+    with tempfile.NamedTemporaryFile("w", delete=False) as f:
         f.write(tomlkit.dumps(data))
         f.close()
 
