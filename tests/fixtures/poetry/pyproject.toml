@@ -16,13 +16,13 @@ keywords = ["packaging", "poetry"]
 
 [tool.poetry.dependencies]
 python = "^3.10"
-luqum = "^0.13"
-sqlmodel = ">=0.0.16,<1.0"
+bar = "==1.2.3"
 elasticsearch = { extras = ["async"], version = "^8.15.0" }
 elasticsearch-dsl = { extras = ["async"], version = "^8.15.0" }
 fastapi = { extras = ["all"], version = "^0.112.1" }
 foo = "*"
-bar = "==1.2.3"
+luqum = "^0.13"
+sqlmodel = ">=0.0.16,<1.0"
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.9"
