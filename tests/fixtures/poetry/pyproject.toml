@@ -1,0 +1,74 @@
+[tool.poetry]
+name = "foo"
+version = "0.0.0"
+description = "bar"
+authors = ["Manabu Niseki <manabu.niseki@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+maintainers = [
+  "John Smith <johnsmith@example.org>",
+  "Jane Smith <janesmith@example.org>",
+]
+documentation = "https://python-poetry.org/docs/"
+homepage = "https://python-poetry.org/"
+repository = "https://github.com/python-poetry/poetry"
+keywords = ["packaging", "poetry"]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+bar = "==1.2.3"
+elasticsearch = { extras = ["async"], version = "^8.15.0" }
+elasticsearch-dsl = { extras = ["async"], version = "^8.15.0" }
+fastapi = { extras = ["all"], version = "^0.112.1" }
+foo = "*"
+luqum = "^0.13"
+sqlmodel = ">=0.0.16,<1.0"
+
+[tool.poetry.group.dev.dependencies]
+mypy = "^1.9"
+pre-commit = "^3.7"
+pytest = "^8.1"
+pytest-pretty = "^1.2"
+pytest-randomly = "^3.15"
+pyupgrade = "^3.15"
+ruff = "^0.4"
+
+[tool.poetry.group.docs.dependencies]
+mkdocs = "^1.6.0"
+mkdocs-material = "^9.5.28"
+mkdocstrings = { extras = ["python"], version = "^0.25.1" }
+
+[tool.poetry.scripts]
+my_package_cli = 'foo.console:run'
+
+[[tool.poetry.source]]
+name = "pypi.org"
+url = "https://pypi.org/simple"
+priority = "primary"
+
+[[tool.poetry.source]]
+name = "aliyun"
+url = "https://mirrors.aliyun.com/pypi/simple/"
+
+[build-system]
+requires = ["poetry-core", "poetry-dynamic-versioning"]
+build-backend = "poetry_dynamic_versioning.backend"
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint]
+select = [
+  "B",   # flake8-bugbear
+  "C",   # flake8-comprehensions
+  "E",   # pycodestyle errors
+  "F",   # pyflakes
+  "I",   # isort
+  "N",   # pep8-naming
+  "PT",  # flake8-pytest-style
+  "RET", # flake8-return
+  "RUF", # Ruff-specific rules
+  "SIM", # flake8-simplify
+  "T20", # flake8-print
+  "W",   # pycodestyle warnings
+]
