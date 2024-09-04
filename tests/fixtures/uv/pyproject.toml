@@ -1,0 +1,73 @@
+[project]
+name = "foo"
+version = "0.0.0"
+description = "bar"
+readme = "README.md"
+requires-python = ">=3.10,<4.0"
+license = "MIT"
+authors = [{ name = "Manabu Niseki", email = "manabu.niseki@gmail.com" }]
+maintainers = [
+  { name = "John Smith", email = "johnsmith@example.org" },
+  { name = "Jane Smith", email = "janesmith@example.org" },
+]
+keywords = ["packaging", "poetry"]
+dependencies = [
+  "bar==1.2.3",
+  "elasticsearch[async]>=8.15.0,<9.0.0",
+  "elasticsearch-dsl[async]>=8.15.0,<9.0.0",
+  "fastapi[all]>=0.112.1,<0.113.0",
+  "foo",
+  "luqum>=0.13,<0.14",
+  "sqlmodel>=0.0.16,<1.0",
+]
+
+[project.urls]
+Homepage = "https://python-poetry.org/"
+Repository = "https://github.com/python-poetry/poetry"
+Documentation = "https://python-poetry.org/docs/"
+
+[project.optional-dependencies]
+docs = [
+  "mkdocs>=1.6.0,<2.0.0",
+  "mkdocs-material>=9.5.28,<10.0.0",
+  "mkdocstrings[python]>=0.25.1,<0.26.0",
+]
+
+[project.scripts]
+my_package_cli = "foo.console:run"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.uv]
+dev-dependencies = [
+  "mypy>=1.9,<2.0",
+  "pre-commit>=3.7,<4.0",
+  "pytest>=8.1,<9.0",
+  "pytest-pretty>=1.2,<2.0",
+  "pytest-randomly>=3.15,<4.0",
+  "pyupgrade>=3.15,<4.0",
+  "ruff>=0.4,<0.5",
+]
+index-url = "https://pypi.org/simple"
+extra-index-url = ["https://mirrors.aliyun.com/pypi/simple/"]
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint]
+select = [
+  "B",   # flake8-bugbear
+  "C",   # flake8-comprehensions
+  "E",   # pycodestyle errors
+  "F",   # pyflakes
+  "I",   # isort
+  "N",   # pep8-naming
+  "PT",  # flake8-pytest-style
+  "RET", # flake8-return
+  "RUF", # Ruff-specific rules
+  "SIM", # flake8-simplify
+  "T20", # flake8-print
+  "W",   # pycodestyle warnings
+]
