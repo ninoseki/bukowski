@@ -1,7 +1,7 @@
 [project]
 name = "bukowski"
 dynamic = ["version"]
-description = "A pyproject.toml conversion tool for Poetry to uv migration."
+description = "A pyproject.toml conversion tool for Poetry to uv migration"
 readme = "README.md"
 license = { file = "LICENSE" }
 requires-python = ">=3.10"
