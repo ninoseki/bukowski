@@ -1,6 +1,7 @@
 from collections.abc import Iterable
+from dataclasses import dataclass
 from functools import partial
-from typing import Any, TypedDict, cast
+from typing import Any, cast
 
 import tomlkit
 from poetry.core.constraints.version import (
@@ -19,7 +20,8 @@ from tomlkit.items import Array
 from tomlkit.toml_document import TOMLDocument
 
 
-class Ownership(TypedDict):
+@dataclass
+class Ownership:
     name: str
     email: str
 
@@ -29,9 +31,9 @@ def serialize_ownership(ownership: Ownership) -> str:
         [
             "{",
             " ",
-            f'name = "{ownership['name']}",',
+            f'name = "{ownership.name}",',
             " ",
-            f'email = "{ownership['email']}"',
+            f'email = "{ownership.email}"',
             " ",
             "},",
         ]
@@ -59,7 +61,7 @@ def name_email_to_ownership(v: str) -> Ownership:
     name, email = v.split(" <")
     email = email[:-1]
     name = name.strip()
-    return {"name": name, "email": email}
+    return Ownership(name, email)
 
 
 def strings_to_array(strings: Iterable[str], *, multiline: bool = True) -> Array:

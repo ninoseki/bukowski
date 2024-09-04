@@ -1,9 +1,5 @@
 version = 1
 requires-python = ">=3.10"
-resolution-markers = [
-    "python_full_version < '3.13'",
-    "python_full_version >= '3.13'",
-]
 
 [[package]]
 name = "build"
@@ -23,7 +19,7 @@ wheels = [
 
 [[package]]
 name = "bukowski"
-version = "0.0.0.post1.dev0+5335b48"
+version = "0.0.0.post3.dev0+61fb2f4"
 source = { editable = "." }
 dependencies = [
     { name = "poetry" },
@@ -382,7 +378,7 @@ name = "importlib-metadata"
 version = "8.4.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "zipp", marker = "python_full_version < '3.13'" },
+    { name = "zipp" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/c0/bd/fa8ce65b0a7d4b6d143ec23b0f5fd3f7ab80121078c465bc02baeaab22dc/importlib_metadata-8.4.0.tar.gz", hash = "sha256:9a547d3bc3608b025f93d403fdd1aae741c24fbb8314df4b155675742ce303c5", size = 54320 }
 wheels = [
