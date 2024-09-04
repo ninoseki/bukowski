@@ -13,7 +13,7 @@ uv pip install bukowski
 ## Usage
 
 ```bash
-$ uv run bukowski --help
+$ bukowski --help
 
  Usage: bukowski [OPTIONS] [PATH]
 
