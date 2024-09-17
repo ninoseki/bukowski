@@ -6,7 +6,7 @@ import tomlkit
 from poetry.core.poetry import Poetry
 
 from bukowski.factory import Factory
-from bukowski.main import poetry_to_uv
+from bukowski.main import normalize_name, poetry_to_uv
 
 
 @pytest.fixture
@@ -37,3 +37,10 @@ def test_poetry_to_uv_with_non_package_mode(poetry_with_non_package_mode: Poetry
     expected = tomlkit.loads(Path("tests/fixtures/uv/pyproject.toml").read_text())
     assert uv != expected
     assert "build-system" not in uv
+
+
+@pytest.mark.parametrize(
+    ("name", "expected"), [("Foo Bar", "foo-bar"), ("Foo-Bar", "foo-bar")]
+)
+def test_normalize_name(name: str, expected: str):
+    assert normalize_name(name) == expected

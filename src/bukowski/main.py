@@ -1,9 +1,11 @@
+import re
 from collections.abc import Iterable
 from dataclasses import dataclass
 from functools import partial
 from typing import Any, cast
 
 import tomlkit
+from packaging.utils import canonicalize_name
 from poetry.core.constraints.version import (
     Version,
     VersionConstraint,
@@ -124,13 +126,20 @@ def init() -> TOMLDocument:
     return pyproject
 
 
+def normalize_name(name: str):
+    # NOTE: > names must start and end with a letter or digit and may only contain -, _, ., and alphanumeric characters.  # noqa: E501
+    #       (ref, https://github.com/astral-sh/uv/blob/main/crates/uv-cli/src/lib.rs#L46-L53)
+    subbed = re.sub("[^a-zA-Z0-9._-]+", "-", name)
+    return canonicalize_name(subbed)
+
+
 @safe
 def set_project(pyproject: TOMLDocument, *, poetry: Poetry) -> TOMLDocument:
     package = poetry.package
 
     content = cast(dict[str, Any], pyproject["project"])
 
-    content["name"] = package.name
+    content["name"] = normalize_name(package.name)
     content["version"] = package.version.text
     content["description"] = package.description
 
