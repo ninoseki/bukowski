@@ -50,6 +50,7 @@ select = [
   "F",   # pyflakes
   "I",   # isort
   "N",   # pep8-naming
+  "PT",  # flake8-pytest-style
   "RET", # flake8-return
   "RUF", # Ruff-specific rules
   "SIM", # flake8-simplify
