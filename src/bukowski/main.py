@@ -13,12 +13,15 @@ from poetry.core.constraints.version import (
     parse_constraint,
 )
 from poetry.core.packages.dependency import Dependency
+from poetry.core.packages.path_dependency import PathDependency
+from poetry.core.packages.url_dependency import URLDependency
+from poetry.core.packages.vcs_dependency import VCSDependency
 from poetry.core.poetry import Poetry
 from returns.functions import raise_exception
 from returns.pipeline import flow
 from returns.pointfree import bind
 from returns.result import ResultE, safe
-from tomlkit.items import Array
+from tomlkit.items import Array, Table
 from tomlkit.toml_document import TOMLDocument
 
 
@@ -203,6 +206,103 @@ def set_main_dependencies(pyproject: TOMLDocument, *, poetry: Poetry) -> TOMLDoc
     return pyproject
 
 
+def get_tool_uv_sources(pyproject: TOMLDocument) -> Table:
+    uv = get_tool_uv(pyproject)
+    sources = uv.get("sources")
+    if not sources:
+        sources = tomlkit.table()
+        uv["sources"] = sources
+
+    return sources
+
+
+@safe
+def set_vcs_sources(pyproject: TOMLDocument, *, poetry: Poetry) -> TOMLDocument:
+    group = poetry.package._dependency_groups.get("main")
+    if not group:
+        return pyproject
+
+    dependencies = [
+        dependency
+        for dependency in group.dependencies
+        if isinstance(dependency, VCSDependency)
+    ]
+    if len(dependencies) == 0:
+        return pyproject
+
+    sources = get_tool_uv_sources(pyproject)
+
+    for dependency in dependencies:
+        vcs_sources = {
+            dependency.vcs: dependency.source,
+            "rev": dependency.rev,
+            "tag": dependency.tag,
+            "branch": dependency.branch,
+        }
+        filtered = {
+            k: v for k, v in vcs_sources.items() if v is not None and str(v) != ""
+        }
+        inline_table = tomlkit.inline_table()
+        inline_table.update(filtered)
+        sources[dependency.pretty_name] = inline_table
+
+    return pyproject
+
+
+@safe
+def set_path_sources(pyproject: TOMLDocument, *, poetry: Poetry) -> TOMLDocument:
+    group = poetry.package._dependency_groups.get("main")
+    if not group:
+        return pyproject
+
+    dependencies = [
+        dependency
+        for dependency in group.dependencies
+        if isinstance(dependency, PathDependency)
+    ]
+    if len(dependencies) == 0:
+        return pyproject
+
+    sources = get_tool_uv_sources(pyproject)
+
+    for dependency in dependencies:
+        path_sources = {
+            "path": str(dependency.path),
+        }
+        inline_table = tomlkit.inline_table()
+        inline_table.update(path_sources)
+        sources[dependency.pretty_name] = inline_table
+
+    return pyproject
+
+
+@safe
+def set_url_sources(pyproject: TOMLDocument, *, poetry: Poetry) -> TOMLDocument:
+    group = poetry.package._dependency_groups.get("main")
+    if not group:
+        return pyproject
+
+    dependencies = [
+        dependency
+        for dependency in group.dependencies
+        if isinstance(dependency, URLDependency)
+    ]
+    if len(dependencies) == 0:
+        return pyproject
+
+    sources = get_tool_uv_sources(pyproject)
+
+    for dependency in dependencies:
+        path_sources = {
+            "url": dependency.source_url,
+        }
+        inline_table = tomlkit.inline_table()
+        inline_table.update(path_sources)
+        sources[dependency.pretty_name] = inline_table
+
+    return pyproject
+
+
 @safe
 def set_dev_dependencies(pyproject: TOMLDocument, *, poetry: Poetry) -> TOMLDocument:
     group = poetry.package._dependency_groups.get("dev")
@@ -339,6 +439,9 @@ def poetry_to_uv(poetry: Poetry) -> TOMLDocument:
         bind(partial(set_optional_dependencies, poetry=poetry)),
         bind(partial(set_scripts, poetry=poetry)),
         bind(partial(set_index_urls, poetry=poetry)),
+        bind(partial(set_vcs_sources, poetry=poetry)),
+        bind(partial(set_url_sources, poetry=poetry)),
+        bind(partial(set_path_sources, poetry=poetry)),
         bind(partial(set_extra_sections, poetry=poetry)),
     )
     return result.alt(raise_exception).unwrap()
