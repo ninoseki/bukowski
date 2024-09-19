@@ -392,9 +392,6 @@ def set_build_system(pyproject: TOMLDocument, *, poetry: Poetry) -> TOMLDocument
 
 @safe
 def set_index_urls(pyproject: TOMLDocument, *, poetry: Poetry) -> TOMLDocument:
-    if not poetry.is_package_mode:
-        return pyproject
-
     sources: list[dict] = (
         poetry.pyproject.data.get("tool", {}).get("poetry", {}).get("source", [])
     )
@@ -411,7 +408,10 @@ def set_index_urls(pyproject: TOMLDocument, *, poetry: Poetry) -> TOMLDocument:
 
         priority: str | None = source.get("priority")
         default: bool | None = source.get("default")
-        if priority in ["default", "primary"] or default:
+        is_not_tagged: bool = set(source.keys()) == {"url", "name"}
+        if (
+            priority in ["default", "primary"] or default or is_not_tagged
+        ) and not index_url:
             index_url = url
         else:
             extra_index_url.add(url)
