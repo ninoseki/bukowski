@@ -53,6 +53,7 @@ dev-dependencies = [
   "pytest-randomly>=3.15,<4.0",
   "pyupgrade>=3.15,<4.0",
   "ruff>=0.4,<0.5",
+  "uvicorn",
 ]
 index-url = "https://pypi.org/simple"
 extra-index-url = ["https://mirrors.aliyun.com/pypi/simple/"]
@@ -60,6 +61,7 @@ extra-index-url = ["https://mirrors.aliyun.com/pypi/simple/"]
 [tool.uv.sources]
 httpx = { git = "https://github.com/encode/httpx.git", branch = "main" }
 requests = { git = "https://github.com/requests/requests.git" }
+uvicorn = { git = "https://github.com/encode/uvicorn.git" }
 y-package = { url = "https://example.com/y-package-0.1.0.tar.gz" }
 z-package = { path = "tests/fixtures/dummy.tar.gz" }
 
