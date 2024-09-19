@@ -155,7 +155,9 @@ def set_project(pyproject: TOMLDocument, *, poetry: Poetry) -> TOMLDocument:
     constraint = parse_constraint(poetry.package.python_versions)
     content["requires-python"] = str(constraint)
 
-    content["license"] = package.license.id if package.license else ""
+    if package.license:
+        content["license"] = package.license.id
+
     content["authors"] = ownerships_to_array(
         [name_email_to_ownership(author) for author in package.authors]
     )
