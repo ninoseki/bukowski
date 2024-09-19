@@ -218,13 +218,9 @@ def get_tool_uv_sources(pyproject: TOMLDocument) -> Table:
 
 @safe
 def set_vcs_sources(pyproject: TOMLDocument, *, poetry: Poetry) -> TOMLDocument:
-    group = poetry.package._dependency_groups.get("main")
-    if not group:
-        return pyproject
-
     dependencies = [
         dependency
-        for dependency in group.dependencies
+        for dependency in poetry.package.all_requires
         if isinstance(dependency, VCSDependency)
     ]
     if len(dependencies) == 0:
@@ -251,13 +247,9 @@ def set_vcs_sources(pyproject: TOMLDocument, *, poetry: Poetry) -> TOMLDocument:
 
 @safe
 def set_path_sources(pyproject: TOMLDocument, *, poetry: Poetry) -> TOMLDocument:
-    group = poetry.package._dependency_groups.get("main")
-    if not group:
-        return pyproject
-
     dependencies = [
         dependency
-        for dependency in group.dependencies
+        for dependency in poetry.package.all_requires
         if isinstance(dependency, PathDependency)
     ]
     if len(dependencies) == 0:
@@ -278,13 +270,9 @@ def set_path_sources(pyproject: TOMLDocument, *, poetry: Poetry) -> TOMLDocument
 
 @safe
 def set_url_sources(pyproject: TOMLDocument, *, poetry: Poetry) -> TOMLDocument:
-    group = poetry.package._dependency_groups.get("main")
-    if not group:
-        return pyproject
-
     dependencies = [
         dependency
-        for dependency in group.dependencies
+        for dependency in poetry.package.all_requires
         if isinstance(dependency, URLDependency)
     ]
     if len(dependencies) == 0:

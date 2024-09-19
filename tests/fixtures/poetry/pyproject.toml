@@ -36,6 +36,7 @@ pytest-pretty = "^1.2"
 pytest-randomly = "^3.15"
 pyupgrade = "^3.15"
 ruff = "^0.4"
+uvicron = { git = "https://github.com/encode/uvicorn.git" }
 
 [tool.poetry.group.docs.dependencies]
 mkdocs = "^1.6.0"
