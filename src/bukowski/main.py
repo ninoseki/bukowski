@@ -217,76 +217,49 @@ def get_tool_uv_sources(pyproject: TOMLDocument) -> Table:
 
 
 @safe
-def set_vcs_sources(pyproject: TOMLDocument, *, poetry: Poetry) -> TOMLDocument:
+def set_sources(pyproject: TOMLDocument, *, poetry: Poetry) -> TOMLDocument:
     dependencies = [
         dependency
         for dependency in poetry.package.all_requires
-        if isinstance(dependency, VCSDependency)
+        if isinstance(dependency, (VCSDependency, URLDependency, PathDependency))
     ]
     if len(dependencies) == 0:
         return pyproject
 
-    sources = get_tool_uv_sources(pyproject)
-
-    for dependency in dependencies:
-        vcs_sources = {
-            dependency.vcs: dependency.source,
-            "rev": dependency.rev,
-            "tag": dependency.tag,
-            "branch": dependency.branch,
-        }
-        filtered = {
-            k: v for k, v in vcs_sources.items() if v is not None and str(v) != ""
-        }
-        inline_table = tomlkit.inline_table()
-        inline_table.update(filtered)
-        sources[dependency.pretty_name] = inline_table
-
-    return pyproject
-
-
-@safe
-def set_path_sources(pyproject: TOMLDocument, *, poetry: Poetry) -> TOMLDocument:
-    dependencies = [
-        dependency
-        for dependency in poetry.package.all_requires
-        if isinstance(dependency, PathDependency)
-    ]
-    if len(dependencies) == 0:
-        return pyproject
+    dependencies = sorted(dependencies, key=lambda d: d.pretty_name)
 
     sources = get_tool_uv_sources(pyproject)
 
     for dependency in dependencies:
-        path_sources = {
-            "path": str(dependency.path),
-        }
-        inline_table = tomlkit.inline_table()
-        inline_table.update(path_sources)
-        sources[dependency.pretty_name] = inline_table
+        if isinstance(dependency, VCSDependency):
+            vcs_sources = {
+                dependency.vcs: dependency.source,
+                "rev": dependency.rev,
+                "tag": dependency.tag,
+                "branch": dependency.branch,
+            }
+            filtered = {
+                k: v for k, v in vcs_sources.items() if v is not None and str(v) != ""
+            }
+            inline_table = tomlkit.inline_table()
+            inline_table.update(filtered)
+            sources[dependency.pretty_name] = inline_table
 
-    return pyproject
+        if isinstance(dependency, URLDependency):
+            url_sources = {
+                "url": dependency.source_url,
+            }
+            inline_table = tomlkit.inline_table()
+            inline_table.update(url_sources)
+            sources[dependency.pretty_name] = inline_table
 
-
-@safe
-def set_url_sources(pyproject: TOMLDocument, *, poetry: Poetry) -> TOMLDocument:
-    dependencies = [
-        dependency
-        for dependency in poetry.package.all_requires
-        if isinstance(dependency, URLDependency)
-    ]
-    if len(dependencies) == 0:
-        return pyproject
-
-    sources = get_tool_uv_sources(pyproject)
-
-    for dependency in dependencies:
-        path_sources = {
-            "url": dependency.source_url,
-        }
-        inline_table = tomlkit.inline_table()
-        inline_table.update(path_sources)
-        sources[dependency.pretty_name] = inline_table
+        if isinstance(dependency, PathDependency):
+            path_sources = {
+                "path": str(dependency.path),
+            }
+            inline_table = tomlkit.inline_table()
+            inline_table.update(path_sources)
+            sources[dependency.pretty_name] = inline_table
 
     return pyproject
 
@@ -427,9 +400,7 @@ def poetry_to_uv(poetry: Poetry) -> TOMLDocument:
         bind(partial(set_optional_dependencies, poetry=poetry)),
         bind(partial(set_scripts, poetry=poetry)),
         bind(partial(set_index_urls, poetry=poetry)),
-        bind(partial(set_vcs_sources, poetry=poetry)),
-        bind(partial(set_url_sources, poetry=poetry)),
-        bind(partial(set_path_sources, poetry=poetry)),
+        bind(partial(set_sources, poetry=poetry)),
         bind(partial(set_extra_sections, poetry=poetry)),
     )
     return result.alt(raise_exception).unwrap()

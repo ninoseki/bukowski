@@ -53,6 +53,7 @@ dev-dependencies = [
   "pytest-randomly>=3.15,<4.0",
   "pyupgrade>=3.15,<4.0",
   "ruff>=0.4,<0.5",
+  "uvicorn",
 ]
 index-url = "https://pypi.org/simple"
 extra-index-url = ["https://mirrors.aliyun.com/pypi/simple/"]
