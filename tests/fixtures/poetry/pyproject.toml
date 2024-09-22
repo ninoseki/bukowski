@@ -23,6 +23,8 @@ fastapi = { extras = ["all"], version = "^0.112.1" }
 foo = "*"
 httpx = { git = "https://github.com/encode/httpx.git", branch = "main" }
 luqum = "^0.13"
+mysqlclient = { version = "^1.3", optional = true }
+psycopg2 = { version = "^2.9", optional = true }
 requests = { git = "https://github.com/requests/requests.git" }
 sqlmodel = ">=0.0.16,<1.0"
 y-package = { url = "https://example.com/y-package-0.1.0.tar.gz" }
@@ -42,6 +44,11 @@ uvicorn = { git = "https://github.com/encode/uvicorn.git" }
 mkdocs = "^1.6.0"
 mkdocs-material = "^9.5.28"
 mkdocstrings = { extras = ["python"], version = "^0.25.1" }
+
+[tool.poetry.extras]
+databases = ["mysqlclient", "psycopg2"]
+mysql = ["mysqlclient"]
+pgsql = ["psycopg2"]
 
 [tool.poetry.scripts]
 my_package_cli = 'foo.console:run'
