@@ -198,11 +198,14 @@ def set_main_dependencies(pyproject: TOMLDocument, *, poetry: Poetry) -> TOMLDoc
     if not group:
         return pyproject
 
-    content = cast(dict[str, Any], pyproject["project"])
-
-    pep508_dependencies = [
-        dependency_to_pep508(dependency) for dependency in group.dependencies
+    dependencies = [
+        dependency for dependency in group.dependencies if not dependency.is_optional()
     ]
+    pep508_dependencies = [
+        dependency_to_pep508(dependency) for dependency in dependencies
+    ]
+
+    content = cast(dict[str, Any], pyproject["project"])
     content["dependencies"] = strings_to_array(pep508_dependencies)
 
     return pyproject
@@ -302,11 +305,19 @@ def set_optional_dependencies(
         optional_dependencies = tomlkit.table()
         content["optional-dependencies"] = optional_dependencies
 
+    # set non-main/dev dependencies
     for key, group in filtered:
         pep508_dependencies = [
             dependency_to_pep508(dependency) for dependency in group.dependencies
         ]
         optional_dependencies[key] = strings_to_array(pep508_dependencies)
+
+    # set optional main dependencies
+    for name, dependencies in poetry.package.extras.items():
+        pep508_dependencies = [
+            dependency_to_pep508(dependency) for dependency in dependencies
+        ]
+        optional_dependencies[name] = strings_to_array(pep508_dependencies)
 
     return pyproject
 
