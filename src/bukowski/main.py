@@ -22,7 +22,8 @@ from returns.pipeline import flow
 from returns.pointfree import bind
 from returns.result import ResultE, safe
 from tomlkit.container import Container, OutOfOrderTableProxy
-from tomlkit.items import AbstractTable, Array, Table
+from tomlkit.exceptions import NonExistentKey
+from tomlkit.items import AbstractTable, Array, SingleKey, Table
 from tomlkit.toml_document import TOMLDocument
 
 
@@ -327,7 +328,27 @@ def remove_from_item_or_container(item_or_container: Any, key: str):
     # tomlkit may parse a table as OutOfOrderTableProxy
     # so we need to handle both cases
     if isinstance(item_or_container, OutOfOrderTableProxy):
-        return item_or_container.__delitem__(key)
+        # modifying OutOfOrderTableProxy#__delitem__
+        if (
+            key not in item_or_container._tables_map
+            or SingleKey(key) not in item_or_container._tables_map
+        ):
+            raise NonExistentKey(key)
+
+        for i in reversed(item_or_container._tables_map[key]):
+            table = cast(Table, item_or_container._tables[i])
+            if key in table:
+                del table[key]
+
+            if not table and len(item_or_container._tables) > 1:
+                item_or_container._remove_table(table)
+
+        del item_or_container._tables_map[key]
+        del item_or_container._internal_container[key]
+        if key is not None:
+            dict.__delitem__(item_or_container, key)
+
+        return None
 
     if isinstance(item_or_container, (AbstractTable, TOMLDocument, Container)):
         return item_or_container.remove(key)
