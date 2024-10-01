@@ -21,7 +21,8 @@ from returns.functions import raise_exception
 from returns.pipeline import flow
 from returns.pointfree import bind
 from returns.result import ResultE, safe
-from tomlkit.items import Array, Table
+from tomlkit.container import Container, OutOfOrderTableProxy
+from tomlkit.items import AbstractTable, Array, Table
 from tomlkit.toml_document import TOMLDocument
 
 
@@ -322,6 +323,18 @@ def set_optional_dependencies(
     return pyproject
 
 
+def remove_from_item_or_container(item_or_container: Any, key: str):
+    # tomlkit may parse a table as OutOfOrderTableProxy
+    # so we need to handle both cases
+    if isinstance(item_or_container, OutOfOrderTableProxy):
+        return item_or_container.__delitem__(key)
+
+    if isinstance(item_or_container, (AbstractTable, TOMLDocument, Container)):
+        return item_or_container.remove(key)
+
+    raise ValueError(f"Unsupported type: {type(item_or_container)}")
+
+
 @safe
 def set_extra_sections(pyproject: TOMLDocument, *, poetry: Poetry) -> TOMLDocument:
     # NOTE: use tomlkit to preserve comments and formatting
@@ -329,11 +342,13 @@ def set_extra_sections(pyproject: TOMLDocument, *, poetry: Poetry) -> TOMLDocume
         data = tomlkit.loads(f.read())
 
     if "build-system" in data:
-        data.pop("build-system")
+        remove_from_item_or_container(data, "build-system")
 
-    poetry_tool: dict[str, Any] = data.pop("tool", {})
-    if "poetry" in poetry_tool:
-        poetry_tool.pop("poetry")
+    poetry_tool: AbstractTable | TOMLDocument | OutOfOrderTableProxy | None = data.pop(
+        "tool"
+    )
+    if poetry_tool and "poetry" in poetry_tool:
+        remove_from_item_or_container(poetry_tool, "poetry")
 
     for key, value in data.items():
         pyproject[key] = value
