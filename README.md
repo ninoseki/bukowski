@@ -10,6 +10,13 @@ pip install bukowski
 uv pip install bukowski
 ```
 
+Alternatively, use [`uv tool`](https://docs.astral.sh/uv/guides/tools/#installing-tools) to install and run from a self-contained virtual environment if you don't have a virtual environment ready:
+
+```shell
+uv tool install bukowski
+bukowski --help
+```
+
 ## Usage
 
 ```bash
