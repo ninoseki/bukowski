@@ -110,6 +110,15 @@ def dependency_to_pep508(dependency: Dependency) -> str:
     )
 
 
+def get_dependency_groups(pyproject: TOMLDocument):
+    dependency_groups: dict[str, Any] | None = pyproject.get("dependency-groups")
+    if not dependency_groups:
+        dependency_groups = tomlkit.table()
+        pyproject["dependency-groups"] = dependency_groups
+
+    return dependency_groups
+
+
 def get_tool_uv(pyproject: TOMLDocument):
     tool: dict[str, Any] | None = pyproject.get("tool")
     if tool is None:
@@ -283,8 +292,8 @@ def set_dev_dependencies(pyproject: TOMLDocument, *, poetry: Poetry) -> TOMLDocu
     if not pep508_dependencies:
         return pyproject
 
-    uv = get_tool_uv(pyproject)
-    uv["dev-dependencies"] = strings_to_array(pep508_dependencies)
+    dependency_groups = get_dependency_groups(pyproject)
+    dependency_groups["dev"] = strings_to_array(pep508_dependencies)
 
     return pyproject
 
@@ -301,25 +310,21 @@ def set_optional_dependencies(
     if not filtered:
         return pyproject
 
-    content = cast(dict[str, Any], pyproject["project"])
-    optional_dependencies = content.get("optional-dependencies")
-    if not optional_dependencies:
-        optional_dependencies = tomlkit.table()
-        content["optional-dependencies"] = optional_dependencies
+    dependency_groups = get_dependency_groups(pyproject)
 
     # set non-main/dev dependencies
     for key, group in filtered:
         pep508_dependencies = [
             dependency_to_pep508(dependency) for dependency in group.dependencies
         ]
-        optional_dependencies[key] = strings_to_array(pep508_dependencies)
+        dependency_groups[key] = strings_to_array(pep508_dependencies)
 
     # set optional main dependencies
     for name, dependencies in poetry.package.extras.items():
         pep508_dependencies = [
             dependency_to_pep508(dependency) for dependency in dependencies
         ]
-        optional_dependencies[name] = strings_to_array(pep508_dependencies)
+        dependency_groups[name] = strings_to_array(pep508_dependencies)
 
     return pyproject
 
