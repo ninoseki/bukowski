@@ -237,7 +237,7 @@ def set_sources(pyproject: TOMLDocument, *, poetry: Poetry) -> TOMLDocument:
     dependencies = [
         dependency
         for dependency in poetry.package.all_requires
-        if isinstance(dependency, (VCSDependency, URLDependency, PathDependency))
+        if isinstance(dependency, VCSDependency | URLDependency | PathDependency)
     ]
     if len(dependencies) == 0:
         return pyproject
@@ -355,7 +355,7 @@ def remove_from_item_or_container(item_or_container: Any, key: str):
 
         return None
 
-    if isinstance(item_or_container, (AbstractTable, TOMLDocument, Container)):
+    if isinstance(item_or_container, AbstractTable | TOMLDocument | Container):
         return item_or_container.remove(key)
 
     raise ValueError(f"Unsupported type: {type(item_or_container)}")

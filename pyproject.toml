@@ -55,5 +55,6 @@ select = [
   "RUF", # Ruff-specific rules
   "SIM", # flake8-simplify
   "T20", # flake8-print
+  "UP",  # pypupgrade
   "W",   # pycodestyle warnings
 ]
