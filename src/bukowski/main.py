@@ -310,21 +310,27 @@ def set_optional_dependencies(
     if not filtered:
         return pyproject
 
+    content = cast(dict[str, Any], pyproject["project"])
+    optional_dependencies = content.get("optional-dependencies")
+    if not optional_dependencies:
+        optional_dependencies = tomlkit.table()
+        content["optional-dependencies"] = optional_dependencies
+
     dependency_groups = get_dependency_groups(pyproject)
 
-    # set non-main/dev dependencies
+    # set non-extra & dev dependencies
     for key, group in filtered:
         pep508_dependencies = [
             dependency_to_pep508(dependency) for dependency in group.dependencies
         ]
         dependency_groups[key] = strings_to_array(pep508_dependencies)
 
-    # set optional main dependencies
+    # set optional extra dependencies
     for name, dependencies in poetry.package.extras.items():
         pep508_dependencies = [
             dependency_to_pep508(dependency) for dependency in dependencies
         ]
-        dependency_groups[name] = strings_to_array(pep508_dependencies)
+        optional_dependencies[name] = strings_to_array(pep508_dependencies)
 
     return pyproject
 
