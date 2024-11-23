@@ -9,7 +9,7 @@ dependencies = [
   "poetry>=1.8.3,<1.9.0",
   "returns>=0.23.0",
   "tomlkit>=0.13.2",
-  "typer>=0.12.5",
+  "typer>=0.13.1",
 ]
 keywords = ["uv", "poetry"]
 classifiers = [
@@ -35,11 +35,12 @@ source = "uv-dynamic-versioning"
 
 [dependency-groups]
 dev = [
+  "build>=1.2.1",
   "pre-commit>=4.0.1",
   "pytest>=8.3.3",
   "pytest-pretty>=1.2.0",
   "pytest-randomly>=3.16.0",
-  "ruff>=0.7.2",
+  "ruff>=0.8.0",
 ]
 
 [tool.ruff.lint]
