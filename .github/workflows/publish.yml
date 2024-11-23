@@ -17,6 +17,6 @@ jobs:
           cache: "pip"
       - run: pip install -r requirements.txt
       - name: build
-        run: uv run build pyproject-build
+        run: uv run pyproject-build
       - name: publish
         uses: pypa/gh-action-pypi-publish@release/v1
