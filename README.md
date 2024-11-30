@@ -10,11 +10,10 @@ pip install bukowski
 uv pip install bukowski
 ```
 
-Alternatively, use [`uv tool`](https://docs.astral.sh/uv/guides/tools/#installing-tools) to install and run from a self-contained virtual environment if you don't have a virtual environment ready:
+Alternatively, you can use [uvx](https://docs.astral.sh/uv/guides/tools/) to install and run from a self-contained virtual environment if you don't have a virtual environment ready:
 
-```shell
-uv tool install bukowski
-bukowski --help
+```bash
+uvx bukowski --help
 ```
 
 ## Usage
@@ -69,7 +68,6 @@ version = "0.1.0"
 description = "bar"
 readme = "README.md"
 requires-python = ">=3.10,<4.0"
-license = ""
 authors = [
     { name = "John Smith", email = "johnsmith@example.org" },
 ]
@@ -82,8 +80,8 @@ dependencies = [
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
-[tool.uv]
-dev-dependencies = [
+[dependency-groups]
+dev = [
     "pytest>=8.3.2,<9.0.0",
 ]
 ```
