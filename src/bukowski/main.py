@@ -307,7 +307,7 @@ def set_optional_dependencies(
         for key, group in poetry.package._dependency_groups.items()
         if key not in ["main", "dev"]
     ]
-    if not filtered:
+    if not filtered and not poetry.package.extras:
         return pyproject
 
     content = cast(dict[str, Any], pyproject["project"])
