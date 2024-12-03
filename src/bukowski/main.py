@@ -302,12 +302,7 @@ def set_dev_dependencies(pyproject: TOMLDocument, *, poetry: Poetry) -> TOMLDocu
 def set_optional_dependencies(
     pyproject: TOMLDocument, *, poetry: Poetry
 ) -> TOMLDocument:
-    filtered = [
-        (key, group)
-        for key, group in poetry.package._dependency_groups.items()
-        if key not in ["main", "dev"]
-    ]
-    if not filtered and not poetry.package.extras:
+    if not poetry.package.extras:
         return pyproject
 
     content = cast(dict[str, Any], pyproject["project"])
@@ -315,6 +310,26 @@ def set_optional_dependencies(
     if not optional_dependencies:
         optional_dependencies = tomlkit.table()
         content["optional-dependencies"] = optional_dependencies
+
+    # set optional extra dependencies
+    for name, dependencies in poetry.package.extras.items():
+        pep508_dependencies = [
+            dependency_to_pep508(dependency) for dependency in dependencies
+        ]
+        optional_dependencies[name] = strings_to_array(pep508_dependencies)
+
+    return pyproject
+
+
+@safe
+def set_dependency_groups(pyproject: TOMLDocument, *, poetry: Poetry) -> TOMLDocument:
+    filtered = [
+        (key, group)
+        for key, group in poetry.package._dependency_groups.items()
+        if key not in ["main", "dev"]
+    ]
+    if not filtered:
+        return pyproject
 
     dependency_groups = get_dependency_groups(pyproject)
 
@@ -324,13 +339,6 @@ def set_optional_dependencies(
             dependency_to_pep508(dependency) for dependency in group.dependencies
         ]
         dependency_groups[key] = strings_to_array(pep508_dependencies)
-
-    # set optional extra dependencies
-    for name, dependencies in poetry.package.extras.items():
-        pep508_dependencies = [
-            dependency_to_pep508(dependency) for dependency in dependencies
-        ]
-        optional_dependencies[name] = strings_to_array(pep508_dependencies)
 
     return pyproject
 
@@ -458,6 +466,7 @@ def poetry_to_uv(poetry: Poetry) -> TOMLDocument:
         bind(partial(set_build_system, poetry=poetry)),
         bind(partial(set_dev_dependencies, poetry=poetry)),
         bind(partial(set_optional_dependencies, poetry=poetry)),
+        bind(partial(set_dependency_groups, poetry=poetry)),
         bind(partial(set_scripts, poetry=poetry)),
         bind(partial(set_index_urls, poetry=poetry)),
         bind(partial(set_sources, poetry=poetry)),
