@@ -375,6 +375,32 @@ def remove_from_item_or_container(item_or_container: Any, key: str):
     raise ValueError(f"Unsupported type: {type(item_or_container)}")
 
 
+def strip_double_newlines(t: Table) -> Table:
+    """
+    Super table can have trailing double newlines and it makes the output ugly.
+    So it should be removed.
+    """
+    if not t.is_super_table():
+        return t
+
+    @safe
+    def inner():
+        string = t.as_string()
+        if string.endswith("\n\n"):
+            string = string[:-1]
+
+        parsed = tomlkit.parse(string)
+        # first item should be a table
+        table = parsed._body[0][1]
+        if not isinstance(table, Table):
+            raise ValueError(f"Expected a table, but got {type(table)}")
+
+        table.name = t.name
+        return table
+
+    return inner().value_or(t)
+
+
 @safe
 def set_extra_sections(pyproject: TOMLDocument, *, poetry: Poetry) -> TOMLDocument:
     # NOTE: use tomlkit to preserve comments and formatting
@@ -402,7 +428,10 @@ def set_extra_sections(pyproject: TOMLDocument, *, poetry: Poetry) -> TOMLDocume
         pyproject["tool"] = tool
 
     for key, value in poetry_tool.items():
-        tool[key] = value
+        if isinstance(value, Table):
+            tool[key] = strip_double_newlines(value)
+        else:
+            tool[key] = value
 
     return pyproject
 
